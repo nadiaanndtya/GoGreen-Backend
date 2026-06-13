@@ -1,24 +1,27 @@
-const { Sequelize } = require("sequelize");
+console.log("START DB");
 
-const sequelize = new Sequelize(process.env.DATABASE_URL, {
-  dialect: "postgres",
-  protocol: "postgres",
+try {
+  const pg = require("pg");
+  console.log("PG LOADED", typeof pg);
 
-  dialectOptions: {
-    ssl: {
-      require: true,
-      rejectUnauthorized: false
+  const { Sequelize } = require("sequelize");
+
+  const sequelize = new Sequelize(process.env.DATABASE_URL, {
+    dialect: "postgres",
+    dialectModule: pg,
+
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false
+      }
     }
-  },
+  });
 
-  define: {
-    schema: "public",       
-    freezeTableName: true     
-  },
+  module.exports = sequelize;
 
-  schema: "public",
-
-  logging: process.env.NODE_ENV === "development" ? console.log : false
-});
-
-module.exports = sequelize;
+} catch (err) {
+  console.error("DB INIT ERROR");
+  console.error(err);
+  throw err;
+}
